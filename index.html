@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Météo du passé — Demo</title>
+  <meta name="description" content="Retrouve une météo passée (fictive mais cohérente) pour une date donnée dans n'importe quelle ville." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="bg" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">☁️</div>
+      <div>
+        <div class="title">Météo du passé</div>
+        <div class="subtitle">cohérente, jolie… et volontairement fictive</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn ghost" id="btnShare" type="button" title="Copier un lien avec tes paramètres">
+        🔗 Partager
+      </button>
+      <button class="btn ghost" id="btnTheme" type="button" title="Changer le thème">
+        🌓 Thème
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero card">
+      <div class="heroText">
+        <h1>Quelle météo faisait-il le jour de ton anniversaire… dans une autre année ?</h1>
+        <p>
+          Entre ta <b>date de naissance</b>, une <b>année</b> et une <b>ville</b>.
+          Le site génère une météo <i>plausible</i> (températures, pluie, vent…),
+          sans prétendre être exacte.
+        </p>
+
+        <div class="notice">
+          <span class="badge">Info</span>
+          <span>
+            Les résultats sont <b>fictifs</b> mais <b>cohérents</b> (mêmes entrées ⇒ mêmes valeurs).
+          </span>
+        </div>
+      </div>
+
+      <form class="form" id="weatherForm">
+        <div class="field">
+          <label for="city">Ville</label>
+          <input id="city" name="city" type="text" placeholder="Ex: Paris, Tokyo, Montréal…" autocomplete="address-level2" required />
+          <div class="hint">Tu peux écrire n’importe quelle ville (même inventée).</div>
+        </div>
+
+        <div class="grid2">
+          <div class="field">
+            <label for="birth">Date de naissance (jour/mois)</label>
+            <input id="birth" name="birth" type="date" required />
+            <div class="hint">L’année ici n’est pas utilisée : on garde seulement jour + mois.</div>
+          </div>
+
+          <div class="field">
+            <label for="year">Année à consulter</label>
+            <input id="year" name="year" type="number" min="1850" max="2100" step="1" placeholder="Ex: 2007" required />
+            <div class="hint">Ex: “ma météo d’anniversaire en 1998”.</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <button class="btn primary" type="submit">Générer la météo</button>
+          <button class="btn" type="button" id="btnRandom">🎲 Exemple</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="results" id="results" hidden>
+      <div class="card resultHeader">
+        <div>
+          <h2 id="resultTitle">—</h2>
+          <p class="muted" id="resultSubtitle">—</p>
+        </div>
+        <div class="pill" id="resultSummary">—</div>
+      </div>
+
+      <div class="grid3">
+        <article class="card metric">
+          <div class="metricTop">
+            <div class="metricIcon">🌡️</div>
+            <div>
+              <div class="metricLabel">Températures</div>
+              <div class="metricValue" id="tempValue">—</div>
+            </div>
+          </div>
+          <div class="metricBottom" id="tempDetail">—</div>
+        </article>
+
+        <article class="card metric">
+          <div class="metricTop">
+            <div class="metricIcon">🌧️</div>
+            <div>
+              <div class="metricLabel">Précipitations</div>
+              <div class="metricValue" id="rainValue">—</div>
+            </div>
+          </div>
+          <div class="metricBottom" id="rainDetail">—</div>
+        </article>
+
+        <article class="card metric">
+          <div class="metricTop">
+            <div class="metricIcon">💨</div>
+            <div>
+              <div class="metricLabel">Vent</div>
+              <div class="metricValue" id="windValue">—</div>
+            </div>
+          </div>
+          <div class="metricBottom" id="windDetail">—</div>
+        </article>
+      </div>
+
+      <div class="grid3">
+        <article class="card metric">
+          <div class="metricTop">
+            <div class="metricIcon">💧</div>
+            <div>
+              <div class="metricLabel">Humidité</div>
+              <div class="metricValue" id="humValue">—</div>
+            </div>
+          </div>
+          <div class="metricBottom" id="humDetail">—</div>
+        </article>
+
+        <article class="card metric">
+          <div class="metricTop">
+            <div class="metricIcon">🧭</div>
+            <div>
+              <div class="metricLabel">Pression</div>
+              <div class="metricValue" id="pressValue">—</div>
+            </div>
+          </div>
+          <div class="metricBottom" id="pressDetail">—</div>
+        </article>
+
+        <article class="card metric">
+          <div class="metricTop">
+            <div class="metricIcon">🌥️</div>
+            <div>
+              <div class="metricLabel">Ciel / UV</div>
+              <div class="metricValue" id="skyValue">—</div>
+            </div>
+          </div>
+          <div class="metricBottom" id="skyDetail">—</div>
+        </article>
+      </div>
+
+      <div class="grid2">
+        <article class="card big">
+          <h3>Heures (approximatives)</h3>
+          <div class="bigRow">
+            <div class="bigItem">
+              <div class="bigIcon">🌅</div>
+              <div>
+                <div class="bigLabel">Lever du soleil</div>
+                <div class="bigValue" id="sunriseValue">—</div>
+              </div>
+            </div>
+
+            <div class="bigItem">
+              <div class="bigIcon">🌇</div>
+              <div>
+                <div class="bigLabel">Coucher du soleil</div>
+                <div class="bigValue" id="sunsetValue">—</div>
+              </div>
+            </div>
+
+            <div class="bigItem">
+              <div class="bigIcon">🧥</div>
+              <div>
+                <div class="bigLabel">Ressenti</div>
+                <div class="bigValue" id="feelsValue">—</div>
+              </div>
+            </div>
+          </div>
+          <p class="muted small" id="astroNote">—</p>
+        </article>
+
+        <article class="card big">
+          <h3>Mini “timeline” du jour</h3>
+          <canvas id="miniChart" width="800" height="240" aria-label="Graphique des températures" role="img"></canvas>
+          <div class="muted small">Courbe indicative (matin → nuit), générée à partir des températures min/max.</div>
+        </article>
+      </div>
+
+      <footer class="footer card">
+        <div class="footerLeft">
+          <div><b>Note</b> : ce site est une démo. Pour des données réelles, il faudrait appeler une API météo historique.</div>
+          <div class="muted small">Astuce : clique sur “Partager” pour copier un lien avec tes paramètres.</div>
+        </div>
+        <div class="footerRight">
+          <button class="btn" id="btnAgain" type="button">↩️ Modifier</button>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
