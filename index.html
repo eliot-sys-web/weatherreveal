@@ -2,208 +2,248 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Météo du passé — Demo</title>
-  <meta name="description" content="Retrouve une météo passée (fictive mais cohérente) pour une date donnée dans n'importe quelle ville." />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Météo Souvenir — météo du passé (démo)</title>
+  <meta name="description" content="Retrouve une météo du passé (fictive mais cohérente) à partir d'une date et d'une ville. Design premium." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-  <div class="bg" aria-hidden="true"></div>
+  <!-- Background -->
+  <div class="bg">
+    <div class="aurora a1"></div>
+    <div class="aurora a2"></div>
+    <div class="aurora a3"></div>
+    <div class="grain" aria-hidden="true"></div>
+  </div>
 
+  <!-- Top bar -->
   <header class="topbar">
-    <div class="brand">
-      <div class="logo" aria-hidden="true">☁️</div>
-      <div>
-        <div class="title">Météo du passé</div>
-        <div class="subtitle">cohérente, jolie… et volontairement fictive</div>
-      </div>
-    </div>
+    <a class="brand" href="#" aria-label="Accueil">
+      <span class="mark" aria-hidden="true">
+        <!-- Cloud + spark -->
+        <svg viewBox="0 0 64 64" width="28" height="28" fill="none">
+          <path d="M22 45h24a12 12 0 0 0 0-24c-1 0-2 0-3 .2A16 16 0 0 0 13 28a10 10 0 0 0 9 17Z"
+                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M44 10l2 6 6 2-6 2-2 6-2-6-6-2 6-2 2-6Z" fill="currentColor" opacity=".9"/>
+        </svg>
+      </span>
+      <span class="brandText">
+        <span class="brandTitle">Météo Souvenir</span>
+        <span class="brandSub">météo passée • cohérente • jolie</span>
+      </span>
+    </a>
 
-    <div class="actions">
-      <button class="btn ghost" id="btnShare" type="button" title="Copier un lien avec tes paramètres">
-        🔗 Partager
+    <div class="topActions">
+      <button class="btn ghost" id="btnTheme" type="button" title="Basculer thème">
+        <span class="btnIcon" aria-hidden="true">🌓</span>
+        <span class="btnLabel">Thème</span>
       </button>
-      <button class="btn ghost" id="btnTheme" type="button" title="Changer le thème">
-        🌓 Thème
+      <button class="btn ghost" id="btnShare" type="button" title="Copier le lien">
+        <span class="btnIcon" aria-hidden="true">🔗</span>
+        <span class="btnLabel">Partager</span>
       </button>
     </div>
   </header>
 
   <main class="container">
-    <section class="hero card">
-      <div class="heroText">
-        <h1>Quelle météo faisait-il le jour de ton anniversaire… dans une autre année ?</h1>
-        <p>
-          Entre ta <b>date de naissance</b>, une <b>année</b> et une <b>ville</b>.
-          Le site génère une météo <i>plausible</i> (températures, pluie, vent…),
-          sans prétendre être exacte.
+    <!-- Hero -->
+    <section class="hero">
+      <div class="heroLeft">
+        <p class="pill">✨ Démo “pro” — sans API</p>
+        <h1>Retrouve la météo du jour où tu es né(e).</h1>
+        <p class="lead">
+          Entre une <b>ville</b>, ta <b>date</b> et une <b>année</b>.
+          Les résultats sont <u>fictifs</u>, mais construits pour rester <b>cohérents</b>.
         </p>
 
-        <div class="notice">
-          <span class="badge">Info</span>
-          <span>
-            Les résultats sont <b>fictifs</b> mais <b>cohérents</b> (mêmes entrées ⇒ mêmes valeurs).
-          </span>
+        <div class="heroStats">
+          <div class="miniStat">
+            <span class="k">Déterministe</span>
+            <span class="v">mêmes entrées → mêmes valeurs</span>
+          </div>
+          <div class="miniStat">
+            <span class="k">Instantané</span>
+            <span class="v">calcul local (JS)</span>
+          </div>
+          <div class="miniStat">
+            <span class="k">Partageable</span>
+            <span class="v">URL auto-générée</span>
+          </div>
         </div>
       </div>
 
-      <form class="form" id="weatherForm">
-        <div class="field">
-          <label for="city">Ville</label>
-          <input id="city" name="city" type="text" placeholder="Ex: Paris, Tokyo, Montréal…" autocomplete="address-level2" required />
-          <div class="hint">Tu peux écrire n’importe quelle ville (même inventée).</div>
-        </div>
-
-        <div class="grid2">
-          <div class="field">
-            <label for="birth">Date de naissance (jour/mois)</label>
-            <input id="birth" name="birth" type="date" required />
-            <div class="hint">L’année ici n’est pas utilisée : on garde seulement jour + mois.</div>
+      <div class="heroRight">
+        <div class="panel">
+          <div class="panelHeader">
+            <h2>Ta recherche</h2>
+            <p class="muted">Date de naissance (jour/mois) + année</p>
           </div>
 
-          <div class="field">
-            <label for="year">Année à consulter</label>
-            <input id="year" name="year" type="number" min="1850" max="2100" step="1" placeholder="Ex: 2007" required />
-            <div class="hint">Ex: “ma météo d’anniversaire en 1998”.</div>
-          </div>
+          <form id="weatherForm" class="form">
+            <div class="field">
+              <label for="city">Ville</label>
+              <input id="city" name="city" type="text" placeholder="Ex: Paris, Lyon, Marseille…" autocomplete="address-level2" required />
+              <p class="hint">Astuce : tu peux écrire “Paris, FR” ou “Québec”.</p>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="birth">Date de naissance</label>
+                <input id="birth" name="birth" type="date" required />
+              </div>
+
+              <div class="field">
+                <label for="year">Année à consulter</label>
+                <input id="year" name="year" type="number" min="1850" max="2026" step="1" required />
+              </div>
+            </div>
+
+            <div class="row">
+              <button class="btn primary" type="submit">
+                <span class="btnIcon" aria-hidden="true">🌦️</span>
+                Générer la météo
+              </button>
+              <button class="btn" id="btnRandom" type="button" title="Exemple rapide">
+                🎲 Exemple
+              </button>
+            </div>
+
+            <div class="note" id="note" role="status" aria-live="polite"></div>
+          </form>
         </div>
 
-        <div class="row">
-          <button class="btn primary" type="submit">Générer la météo</button>
-          <button class="btn" type="button" id="btnRandom">🎲 Exemple</button>
+        <div class="trust">
+          <div class="trustItem">
+            <span class="dot"></span>
+            <span>Sans tracking</span>
+          </div>
+          <div class="trustItem">
+            <span class="dot"></span>
+            <span>Sans serveur</span>
+          </div>
+          <div class="trustItem">
+            <span class="dot"></span>
+            <span>Design responsive</span>
+          </div>
         </div>
-      </form>
+      </div>
     </section>
 
-    <section class="results" id="results" hidden>
-      <div class="card resultHeader">
+    <!-- Results -->
+    <section class="results" id="results" aria-live="polite">
+      <div class="resultsHeader">
         <div>
-          <h2 id="resultTitle">—</h2>
-          <p class="muted" id="resultSubtitle">—</p>
+          <h2>Résultat</h2>
+          <p class="muted" id="subtitle"></p>
         </div>
-        <div class="pill" id="resultSummary">—</div>
+
+        <div class="badgeRow">
+          <span class="badge" id="badgeCondition">—</span>
+          <span class="badge subtle" id="badgeConfidence">Cohérence: élevée</span>
+        </div>
       </div>
 
-      <div class="grid3">
-        <article class="card metric">
-          <div class="metricTop">
-            <div class="metricIcon">🌡️</div>
-            <div>
-              <div class="metricLabel">Températures</div>
-              <div class="metricValue" id="tempValue">—</div>
-            </div>
-          </div>
-          <div class="metricBottom" id="tempDetail">—</div>
-        </article>
-
-        <article class="card metric">
-          <div class="metricTop">
-            <div class="metricIcon">🌧️</div>
-            <div>
-              <div class="metricLabel">Précipitations</div>
-              <div class="metricValue" id="rainValue">—</div>
-            </div>
-          </div>
-          <div class="metricBottom" id="rainDetail">—</div>
-        </article>
-
-        <article class="card metric">
-          <div class="metricTop">
-            <div class="metricIcon">💨</div>
-            <div>
-              <div class="metricLabel">Vent</div>
-              <div class="metricValue" id="windValue">—</div>
-            </div>
-          </div>
-          <div class="metricBottom" id="windDetail">—</div>
-        </article>
+      <div class="skeleton" id="skeleton" hidden>
+        <div class="skLine"></div>
+        <div class="skGrid">
+          <div class="skCard"></div><div class="skCard"></div><div class="skCard"></div><div class="skCard"></div>
+        </div>
       </div>
 
-      <div class="grid3">
-        <article class="card metric">
-          <div class="metricTop">
-            <div class="metricIcon">💧</div>
-            <div>
-              <div class="metricLabel">Humidité</div>
-              <div class="metricValue" id="humValue">—</div>
-            </div>
-          </div>
-          <div class="metricBottom" id="humDetail">—</div>
-        </article>
-
-        <article class="card metric">
-          <div class="metricTop">
-            <div class="metricIcon">🧭</div>
-            <div>
-              <div class="metricLabel">Pression</div>
-              <div class="metricValue" id="pressValue">—</div>
-            </div>
-          </div>
-          <div class="metricBottom" id="pressDetail">—</div>
-        </article>
-
-        <article class="card metric">
-          <div class="metricTop">
-            <div class="metricIcon">🌥️</div>
-            <div>
-              <div class="metricLabel">Ciel / UV</div>
-              <div class="metricValue" id="skyValue">—</div>
-            </div>
-          </div>
-          <div class="metricBottom" id="skyDetail">—</div>
-        </article>
-      </div>
-
-      <div class="grid2">
+      <div class="grid" id="grid" hidden>
         <article class="card big">
-          <h3>Heures (approximatives)</h3>
-          <div class="bigRow">
-            <div class="bigItem">
-              <div class="bigIcon">🌅</div>
-              <div>
-                <div class="bigLabel">Lever du soleil</div>
-                <div class="bigValue" id="sunriseValue">—</div>
-              </div>
-            </div>
-
-            <div class="bigItem">
-              <div class="bigIcon">🌇</div>
-              <div>
-                <div class="bigLabel">Coucher du soleil</div>
-                <div class="bigValue" id="sunsetValue">—</div>
-              </div>
-            </div>
-
-            <div class="bigItem">
-              <div class="bigIcon">🧥</div>
-              <div>
-                <div class="bigLabel">Ressenti</div>
-                <div class="bigValue" id="feelsValue">—</div>
+          <div class="cardTop">
+            <div class="iconWrap" id="iconMain" aria-hidden="true"></div>
+            <div>
+              <div class="bigTemp"><span id="tempNow">—</span><span class="unit">°C</span></div>
+              <div class="bigMeta">
+                <span id="tempMinMax">—</span>
+                <span class="sep">•</span>
+                <span id="feelsLike">—</span>
               </div>
             </div>
           </div>
-          <p class="muted small" id="astroNote">—</p>
+
+          <div class="cardMid">
+            <div class="progressBlock">
+              <div class="progressLabel">
+                <span>Pluie</span>
+                <span class="muted" id="rainText">—</span>
+              </div>
+              <div class="bar" aria-hidden="true"><div class="fill" id="rainBar"></div></div>
+            </div>
+
+            <div class="progressBlock">
+              <div class="progressLabel">
+                <span>Nébulosité</span>
+                <span class="muted" id="cloudText">—</span>
+              </div>
+              <div class="bar" aria-hidden="true"><div class="fill" id="cloudBar"></div></div>
+            </div>
+          </div>
+
+          <div class="cardBottom">
+            <div class="sunRow">
+              <div class="sunItem">
+                <span class="muted">Lever</span>
+                <span class="val" id="sunrise">—</span>
+              </div>
+              <div class="sunItem">
+                <span class="muted">Coucher</span>
+                <span class="val" id="sunset">—</span>
+              </div>
+              <div class="sunItem">
+                <span class="muted">UV</span>
+                <span class="val" id="uv">—</span>
+              </div>
+            </div>
+          </div>
         </article>
 
-        <article class="card big">
-          <h3>Mini “timeline” du jour</h3>
-          <canvas id="miniChart" width="800" height="240" aria-label="Graphique des températures" role="img"></canvas>
-          <div class="muted small">Courbe indicative (matin → nuit), générée à partir des températures min/max.</div>
+        <article class="card">
+          <h3>Vent</h3>
+          <p class="kpi"><span id="wind">—</span> <span class="unit">km/h</span></p>
+          <p class="muted" id="windDir">—</p>
+          <div class="divider"></div>
+          <p class="mini">Rafales: <b id="gust">—</b> km/h</p>
+        </article>
+
+        <article class="card">
+          <h3>Humidité</h3>
+          <p class="kpi"><span id="humidity">—</span> <span class="unit">%</span></p>
+          <p class="muted">Point de rosée: <b id="dew">—</b> °C</p>
+          <div class="divider"></div>
+          <p class="mini">Confort: <b id="comfort">—</b></p>
+        </article>
+
+        <article class="card">
+          <h3>Pression</h3>
+          <p class="kpi"><span id="pressure">—</span> <span class="unit">hPa</span></p>
+          <p class="muted" id="pressureHint">—</p>
+          <div class="divider"></div>
+          <p class="mini">Visibilité: <b id="visibility">—</b> km</p>
+        </article>
+
+        <article class="card wide">
+          <h3>Résumé du jour</h3>
+          <p id="summary" class="summary">—</p>
+          <div class="divider"></div>
+          <div class="chips" id="chips"></div>
         </article>
       </div>
 
-      <footer class="footer card">
-        <div class="footerLeft">
-          <div><b>Note</b> : ce site est une démo. Pour des données réelles, il faudrait appeler une API météo historique.</div>
-          <div class="muted small">Astuce : clique sur “Partager” pour copier un lien avec tes paramètres.</div>
-        </div>
-        <div class="footerRight">
-          <button class="btn" id="btnAgain" type="button">↩️ Modifier</button>
-        </div>
-      </footer>
+      <p class="foot muted">
+        Note : cette météo est une <b>simulation</b> (valeurs plausibles, pas garanties exactes).
+      </p>
     </section>
   </main>
+
+  <footer class="footer">
+    <p class="muted">
+      © <span id="yearNow"></span> — Météo Souvenir. Démo statique (GitHub Pages friendly).
+    </p>
+  </footer>
 
   <script src="script.js"></script>
 </body>
