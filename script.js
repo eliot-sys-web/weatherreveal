@@ -1,417 +1,460 @@
-// -------------------------
-// Utils
-// -------------------------
-const $ = (sel) => document.querySelector(sel);
+:root{
+  --bg0:#070A12;
+  --bg1:#0B1020;
+  --card: rgba(255,255,255,.08);
+  --card2: rgba(255,255,255,.12);
+  --stroke: rgba(255,255,255,.14);
 
-function clamp(x, a, b){ return Math.min(b, Math.max(a, x)); }
+  --text:#ECF2FF;
+  --muted: rgba(236,242,255,.70);
 
-function pad2(n){ return String(n).padStart(2, "0"); }
+  --primary:#7C5CFF;
+  --primary2:#2EE9A6;
+  --warn:#FFCC66;
 
-function formatDateFR(d){
-  const months = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
-  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  --shadow: 0 20px 60px rgba(0,0,0,.55);
+  --radius: 18px;
 }
 
-function isLeapYear(y){
-  return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
+[data-theme="light"]{
+  --bg0:#F6F7FB;
+  --bg1:#FFFFFF;
+  --card: rgba(20,25,40,.06);
+  --card2: rgba(20,25,40,.09);
+  --stroke: rgba(20,25,40,.12);
+
+  --text:#0B1020;
+  --muted: rgba(11,16,32,.65);
+
+  --primary:#5B5CFF;
+  --primary2:#00B386;
+
+  --shadow: 0 18px 50px rgba(10,20,40,.18);
 }
 
-function dayOfYear(date){
-  const start = new Date(date.getFullYear(), 0, 1);
-  const diff = date - start;
-  return Math.floor(diff / 86400000) + 1;
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  color:var(--text);
+  background: linear-gradient(180deg, var(--bg0), var(--bg1));
+  overflow-x:hidden;
 }
 
-// Hash string -> 32-bit
-function hashString(str){
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++){
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
+a{ color:inherit; text-decoration:none; }
+b{ font-weight: 700; }
+u{ text-underline-offset: 4px; }
+
+.bg{
+  position:fixed; inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+.aurora{
+  position:absolute;
+  width:900px; height:900px;
+  filter: blur(50px);
+  opacity:.55;
+  mix-blend-mode: screen;
+  animation: float 14s ease-in-out infinite;
+}
+.aurora.a1{ background: radial-gradient(circle at 30% 30%, var(--primary), transparent 55%); left:-220px; top:-260px; }
+.aurora.a2{ background: radial-gradient(circle at 50% 50%, var(--primary2), transparent 60%); right:-260px; top:-200px; animation-duration: 17s; }
+.aurora.a3{ background: radial-gradient(circle at 50% 50%, #FF6BD6, transparent 60%); left:10%; bottom:-420px; opacity:.28; animation-duration: 20s; }
+
+@keyframes float{
+  0%,100%{ transform: translate3d(0,0,0) scale(1); }
+  50%{ transform: translate3d(30px,-25px,0) scale(1.06); }
 }
 
-// Deterministic PRNG: Mulberry32
-function mulberry32(seed){
-  let a = seed >>> 0;
-  return function(){
-    a |= 0;
-    a = (a + 0x6D2B79F5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+.grain{
+  position:absolute; inset:-20%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
+  opacity:.14;
+  transform: rotate(7deg);
 }
 
-function pick(rnd, arr){
-  return arr[Math.floor(rnd() * arr.length)];
+.topbar{
+  position:sticky; top:0;
+  z-index:10;
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 18px 22px;
+  backdrop-filter: blur(16px);
+  background: linear-gradient(180deg, rgba(0,0,0,.28), rgba(0,0,0,.06));
+  border-bottom: 1px solid var(--stroke);
+}
+[data-theme="light"] .topbar{
+  background: linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.35));
 }
 
-function degToCompass(deg){
-  const dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
-  const idx = Math.round((deg % 360) / 22.5) % 16;
-  return dirs[idx];
+.brand{ display:flex; align-items:center; gap:12px; }
+.mark{
+  width:44px; height:44px;
+  display:grid; place-items:center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(124,92,255,.22), rgba(46,233,166,.14));
+  border: 1px solid var(--stroke);
+  box-shadow: var(--shadow);
+}
+.brandTitle{ display:block; font-weight: 820; letter-spacing: .2px; }
+.brandSub{ display:block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.topActions{ display:flex; gap:10px; }
+
+.container{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 26px 22px 80px;
 }
 
-function hoursToHHMM(h){
-  let hh = Math.floor(h);
-  let mm = Math.round((h - hh) * 60);
-  if (mm === 60){ mm = 0; hh += 1; }
-  hh = (hh + 24) % 24;
-  return `${pad2(hh)}:${pad2(mm)}`;
+.hero{
+  display:grid;
+  grid-template-columns: 1.2fr .9fr;
+  gap: 22px;
+  align-items:start;
+  margin-top: 10px;
 }
 
-// -------------------------
-// “Weather” generator (coherent fiction)
-// -------------------------
-function generateWeather({ city, month, day, year }){
-  const key = `${city.trim().toLowerCase()}|${year}-${pad2(month+1)}-${pad2(day)}`;
-  const seed = hashString(key) ^ (year * 2654435761);
-  const rnd = mulberry32(seed >>> 0);
-
-  // Date
-  const date = new Date(year, month, day);
-  const doy = dayOfYear(date);
-
-  // Seasonal curve (Northern hemisphere-like)
-  // Peak around late June/July (doy ~ 200), trough around January.
-  const seasonal = Math.sin((2 * Math.PI * (doy - 172)) / 365);
-
-  // City “profile” from hash (fake latitude + climate offset)
-  const hc = hashString(city.trim().toLowerCase());
-  const lat = 15 + (hc % 61); // 15..75
-  const climateOffset = ((hc >>> 8) % 2400) / 100 - 12; // -12..+12 approx
-
-  // Baseline temperature and noise
-  const base = 12 + 11 * seasonal + climateOffset;        // average day temp
-  const noise = (rnd() - 0.5) * 4.5;                      // +/- ~2.25
-  const avg = base + noise;
-
-  const diurnal = 6 + rnd() * 5;                          // 6..11
-  const tMax = avg + diurnal * (0.55 + rnd() * 0.10);
-  const tMin = avg - diurnal * (0.45 + rnd() * 0.10);
-
-  // Cloud & precipitation (correlated)
-  const winterBoost = clamp(-seasonal, 0, 1);             // more clouds in "winter"
-  const humidFactor = clamp((12 - Math.abs(climateOffset)) / 12, 0, 1); // temperate ~ more humid
-  let cloud = clamp(0.25 + 0.35 * winterBoost + 0.25 * humidFactor + (rnd() - 0.5) * 0.35, 0.05, 0.98);
-
-  const rainProb = clamp(0.15 + 0.45 * cloud + 0.15 * winterBoost + (rnd() - 0.5) * 0.10, 0.03, 0.92);
-  const isRain = rnd() < rainProb;
-
-  // If rain: heavier clouds
-  if (isRain) cloud = clamp(cloud + 0.18 + rnd() * 0.22, 0.25, 0.99);
-
-  const rainMM = isRain ? Math.round((Math.pow(rnd(), 0.55) * (8 + 28 * cloud)) * 10) / 10 : 0;
-
-  // Humidity correlated with cloud/rain
-  const humidity = Math.round(clamp(
-    42 + cloud * 45 + (isRain ? 12 : 0) + (rnd() - 0.5) * 10 - climateOffset * 0.7,
-    15, 100
-  ));
-
-  // Wind correlated with pressure systems / rain
-  const windKmh = Math.round(clamp(
-    6 + rnd() * 24 + (isRain ? 6 : 0) + cloud * 6,
-    0, 70
-  ));
-  const windDir = Math.round(rnd() * 359);
-
-  // Pressure lower if rainy/cloudy
-  const pressure = Math.round(clamp(
-    1019 - cloud * 18 - (isRain ? 10 : 0) + (rnd() - 0.5) * 8,
-    970, 1040
-  ));
-
-  // UV index: higher in summer, lower with clouds
-  const uv = Math.round(clamp(
-    1.5 + 7.2 * clamp(seasonal * 0.65 + 0.55, 0, 1) * (1 - cloud * 0.70) + (rnd() - 0.5) * 0.6,
-    0, 11
-  ));
-
-  // Day length approx (very simplified)
-  const latFactor = Math.cos((Math.abs(lat - 45) / 45) * (Math.PI / 2)); // 0..1
-  const dayLen = clamp(12 + (4.2 * seasonal) * (0.55 + 0.45 * latFactor), 7.2, 16.8);
-  const sunrise = 12 - dayLen / 2;
-  const sunset  = 12 + dayLen / 2;
-
-  // “Feels like” simple: wind chill / humidity effect
-  let feels = avg;
-  if (avg < 10) feels = avg - (windKmh / 35);
-  if (avg > 24) feels = avg + (humidity - 55) / 18;
-  feels = Math.round(feels * 10) / 10;
-
-  // Description
-  let desc;
-  if (isRain && rainMM > 12) desc = "Pluie soutenue";
-  else if (isRain) desc = "Averses / pluie faible";
-  else if (cloud > 0.72) desc = "Très nuageux";
-  else if (cloud > 0.45) desc = "Partiellement nuageux";
-  else desc = "Ciel dégagé";
-
-  // Snow hint (only if cold + precip)
-  const snowPossible = isRain && avg <= 1.5;
-  const precipType = snowPossible ? "neige (possible)" : (isRain ? "pluie" : "aucune");
-
-  return {
-    key, city, date, doy, lat,
-    tMin: Math.round(tMin * 10) / 10,
-    tMax: Math.round(tMax * 10) / 10,
-    tAvg: Math.round(avg * 10) / 10,
-    feels,
-    rainMM,
-    rainProb,
-    humidity,
-    windKmh,
-    windDir,
-    pressure,
-    cloud,
-    uv,
-    sunriseHHMM: hoursToHHMM(sunrise),
-    sunsetHHMM: hoursToHHMM(sunset),
-    desc,
-    precipType
-  };
+.pill{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid var(--stroke);
+  color: var(--muted);
+  font-size: 13px;
 }
 
-// -------------------------
-// UI
-// -------------------------
-function drawMiniChart(canvas, w){
-  const ctx = canvas.getContext("2d");
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0,0,W,H);
-
-  // Background grid
-  ctx.save();
-  ctx.globalAlpha = 0.6;
-  ctx.strokeStyle = "rgba(255,255,255,0.10)";
-  for (let i=1;i<=4;i++){
-    const y = (H*i)/5;
-    ctx.beginPath(); ctx.moveTo(16,y); ctx.lineTo(W-16,y); ctx.stroke();
-  }
-  ctx.restore();
-
-  // Fake temperature curve based on min/max
-  const points = [];
-  const hours = [0, 3, 6, 9, 12, 15, 18, 21, 24];
-  // simple curve: min around 6, max around 15
-  for (const h of hours){
-    let t;
-    if (h <= 6) t = w.tMin + (w.tAvg - w.tMin) * (h / 6) * 0.55;
-    else if (h <= 15) t = w.tMin + (w.tMax - w.tMin) * ((h - 6) / 9);
-    else t = w.tMax - (w.tMax - w.tMin) * ((h - 15) / 9) * 0.75;
-    points.push({ h, t });
-  }
-
-  const tMin = Math.min(...points.map(p=>p.t));
-  const tMax = Math.max(...points.map(p=>p.t));
-  const pad = 6;
-  const tLo = tMin - pad, tHi = tMax + pad;
-
-  const x = (h) => 16 + (W - 32) * (h / 24);
-  const y = (t) => 18 + (H - 36) * (1 - (t - tLo) / (tHi - tLo));
-
-  // Line
-  const grad = ctx.createLinearGradient(0,0,W,0);
-  grad.addColorStop(0, "rgba(124,92,255,0.95)");
-  grad.addColorStop(1, "rgba(0,212,255,0.95)");
-
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = grad;
-  ctx.beginPath();
-  ctx.moveTo(x(points[0].h), y(points[0].t));
-  for (let i=1;i<points.length;i++){
-    ctx.lineTo(x(points[i].h), y(points[i].t));
-  }
-  ctx.stroke();
-
-  // Dots
-  ctx.fillStyle = "rgba(255,255,255,0.85)";
-  for (const p of points){
-    ctx.beginPath();
-    ctx.arc(x(p.h), y(p.t), 3.4, 0, Math.PI*2);
-    ctx.fill();
-  }
-
-  // Labels (min/max)
-  ctx.fillStyle = "rgba(255,255,255,0.80)";
-  ctx.font = "700 12px ui-sans-serif, system-ui";
-  ctx.fillText(`${w.tMin}°C`, 20, y(w.tMin) - 10);
-  ctx.fillText(`${w.tMax}°C`, 20, y(w.tMax) - 10);
+h1{
+  margin: 14px 0 10px;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.06;
+  letter-spacing: -0.6px;
+}
+.lead{
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.55;
 }
 
-function setTheme(theme){
-  document.documentElement.setAttribute("data-theme", theme);
-  localStorage.setItem("theme", theme);
+.heroStats{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+.miniStat{
+  padding: 14px 14px;
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--stroke);
+}
+.miniStat .k{ display:block; font-weight: 780; }
+.miniStat .v{ display:block; margin-top: 4px; color: var(--muted); font-size: 13px; }
+
+.panel{
+  border-radius: calc(var(--radius) + 6px);
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+  border: 1px solid var(--stroke);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+.panelHeader{
+  padding: 18px 18px 10px;
+  border-bottom: 1px solid var(--stroke);
+}
+.panelHeader h2{ margin:0; font-size: 16px; letter-spacing: .2px; }
+.muted{ color: var(--muted); }
+
+.form{ padding: 16px 18px 18px; }
+.field{ display:flex; flex-direction:column; gap: 8px; margin-bottom: 14px; }
+label{ font-size: 13px; color: var(--muted); }
+.hint{ margin:0; font-size: 12px; color: var(--muted); }
+
+input{
+  height: 44px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(0,0,0,.18);
+  color: var(--text);
+  outline: none;
+}
+[data-theme="light"] input{ background: rgba(255,255,255,.75); }
+input:focus{
+  border-color: rgba(124,92,255,.55);
+  box-shadow: 0 0 0 6px rgba(124,92,255,.16);
 }
 
-function getTheme(){
-  return localStorage.getItem("theme") || "dark";
+.row{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
-function setQueryFromForm(city, birthISO, year){
-  const params = new URLSearchParams();
-  params.set("city", city);
-  params.set("birth", birthISO);
-  params.set("year", year);
-  history.replaceState(null, "", `${location.pathname}?${params.toString()}`);
+.btn{
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.08);
+  color: var(--text);
+  cursor: pointer;
+  padding: 0 14px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing:.2px;
+  transition: transform .12s ease, background .2s ease, border-color .2s ease;
+}
+.btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.12); }
+.btn:active{ transform: translateY(0px) scale(.99); }
+
+.btn.primary{
+  background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(46,233,166,.70));
+  border-color: rgba(255,255,255,.16);
+}
+.btn.primary:hover{ filter: brightness(1.02); }
+
+.btn.ghost{
+  background: rgba(255,255,255,.06);
 }
 
-function getQuery(){
-  const p = new URLSearchParams(location.search);
-  return {
-    city: p.get("city"),
-    birth: p.get("birth"),
-    year: p.get("year")
-  };
+.btnLabel{ display:none; }
+@media (min-width: 880px){
+  .btnLabel{ display:inline; }
 }
 
-function showResults(w, leapNote){
-  $("#results").hidden = false;
-
-  $("#resultTitle").textContent = `Météo à ${w.city} le ${formatDateFR(w.date)}`;
-  $("#resultSubtitle").textContent =
-    `${w.desc} • Précipitations : ${w.precipType} • “Latitude” simulée : ${Math.round(w.lat)}°`;
-
-  $("#resultSummary").textContent = `${w.desc} — ${w.tMin}° / ${w.tMax}°`;
-
-  $("#tempValue").textContent = `${w.tMin}°C → ${w.tMax}°C`;
-  $("#tempDetail").textContent = `Moyenne ~ ${w.tAvg}°C • Ressenti ~ ${w.feels}°C`;
-
-  $("#rainValue").textContent = w.rainMM > 0 ? `${w.rainMM} mm` : `0 mm`;
-  const rainPct = Math.round(w.rainProb * 100);
-  $("#rainDetail").textContent = `Probabilité (simulée) : ${rainPct}% • Type : ${w.precipType}`;
-
-  $("#windValue").textContent = `${w.windKmh} km/h`;
-  $("#windDetail").textContent = `Direction : ${degToCompass(w.windDir)} (${w.windDir}°)`;
-
-  $("#humValue").textContent = `${w.humidity}%`;
-  $("#humDetail").textContent = `Nébulosité : ${Math.round(w.cloud * 100)}%`;
-
-  $("#pressValue").textContent = `${w.pressure} hPa`;
-  $("#pressDetail").textContent = w.pressure < 1000 ? `Tendance perturbée possible` : `Plutôt stable`;
-
-  $("#skyValue").textContent = `${Math.round(w.cloud * 100)}% • UV ${w.uv}`;
-  $("#skyDetail").textContent = `Indice UV (simulé) : ${w.uv}/11`;
-
-  $("#sunriseValue").textContent = w.sunriseHHMM;
-  $("#sunsetValue").textContent = w.sunsetHHMM;
-  $("#feelsValue").textContent = `${w.feels}°C`;
-
-  $("#astroNote").textContent =
-    `${leapNote ? leapNote + " " : ""}Lever/coucher générés de façon approximative (démo).`;
-
-  drawMiniChart($("#miniChart"), w);
-
-  // scroll to results
-  setTimeout(() => $("#results").scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+.note{
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--muted);
+  min-height: 18px;
 }
 
-function hideResults(){
-  $("#results").hidden = true;
-  window.scrollTo({ top: 0, behavior: "smooth" });
+.trust{
+  display:flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding: 10px 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.trustItem{ display:flex; gap: 8px; align-items:center; }
+.dot{
+  width:8px; height:8px; border-radius:999px;
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+  box-shadow: 0 0 0 4px rgba(124,92,255,.12);
 }
 
-// -------------------------
-// Wiring
-// -------------------------
-setTheme(getTheme());
+.results{
+  margin-top: 26px;
+  padding: 18px;
+  border-radius: calc(var(--radius) + 10px);
+  border: 1px solid var(--stroke);
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+  box-shadow: var(--shadow);
+}
 
-$("#btnTheme").addEventListener("click", () => {
-  const cur = document.documentElement.getAttribute("data-theme") || "dark";
-  setTheme(cur === "dark" ? "light" : "dark");
-});
+.resultsHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.resultsHeader h2{ margin:0; font-size: 18px; }
+.badgeRow{ display:flex; gap: 8px; flex-wrap: wrap; }
+.badge{
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.08);
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge.subtle{ color: var(--muted); font-weight: 650; }
 
-$("#btnAgain").addEventListener("click", hideResults);
+.grid{
+  display:grid;
+  grid-template-columns: 1.2fr .9fr .9fr;
+  gap: 12px;
+  margin-top: 12px;
+  animation: pop .22s ease-out;
+}
+@keyframes pop{
+  from{ opacity:0; transform: translateY(6px); }
+  to{ opacity:1; transform: translateY(0); }
+}
 
-$("#btnRandom").addEventListener("click", () => {
-  const cities = ["Paris", "Lyon", "Marseille", "Tokyo", "Reykjavík", "New York", "Alger", "Montréal", "São Paulo", "Sydney"];
-  const city = cities[Math.floor(Math.random() * cities.length)];
-  const year = 1950 + Math.floor(Math.random() * 76); // 1950..2025
+.card{
+  border-radius: var(--radius);
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.07);
+  padding: 14px;
+}
+.card.big{
+  grid-row: span 2;
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+}
+.card.wide{ grid-column: 1 / -1; }
 
-  // Random day/month (safe-ish)
-  const month = Math.floor(Math.random() * 12);
-  const day = 1 + Math.floor(Math.random() * 28);
-  const birth = new Date(2000, month, day); // arbitrary year for input
-  const iso = `${birth.getFullYear()}-${pad2(birth.getMonth()+1)}-${pad2(birth.getDate())}`;
+.card h3{
+  margin: 0 0 10px;
+  font-size: 14px;
+  letter-spacing: .2px;
+}
+.kpi{
+  margin: 0;
+  font-size: 28px;
+  font-weight: 850;
+  letter-spacing: -0.6px;
+}
+.unit{ font-size: 14px; color: var(--muted); margin-left: 2px; }
+.divider{
+  height:1px;
+  background: var(--stroke);
+  margin: 12px 0;
+}
+.mini{ margin: 0; color: var(--muted); font-size: 13px; }
+.summary{ margin: 0; line-height:1.55; color: var(--muted); }
 
-  $("#city").value = city;
-  $("#year").value = year;
-  $("#birth").value = iso;
-});
+.cardTop{
+  display:flex;
+  gap: 14px;
+  align-items:center;
+}
+.iconWrap{
+  width: 56px; height: 56px;
+  border-radius: 18px;
+  display:grid;
+  place-items:center;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.08);
+}
+.bigTemp{
+  font-size: 46px;
+  font-weight: 900;
+  letter-spacing: -1.2px;
+  line-height: 1;
+}
+.bigMeta{
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.sep{ margin: 0 8px; opacity: .6; }
 
-$("#btnShare").addEventListener("click", async () => {
-  const city = $("#city").value.trim();
-  const birth = $("#birth").value;
-  const year = $("#year").value;
+.cardMid{
+  margin-top: 14px;
+  display:grid;
+  gap: 10px;
+}
+.progressLabel{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size: 13px;
+}
+.bar{
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid var(--stroke);
+  overflow:hidden;
+}
+.fill{
+  height:100%;
+  width:0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(124,92,255,.9), rgba(46,233,166,.8));
+  transition: width .5s ease;
+}
 
-  if (!city || !birth || !year){
-    alert("Remplis d’abord la ville, la date (jour/mois) et l’année 🙂");
-    return;
-  }
+.sunRow{
+  display:flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.sunItem{ display:flex; flex-direction:column; gap: 4px; }
+.sunItem .val{ font-weight: 800; }
 
-  setQueryFromForm(city, birth, year);
-  const link = location.href;
+.chips{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.chip{
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.06);
+  color: var(--muted);
+  font-size: 12px;
+}
 
-  try{
-    await navigator.clipboard.writeText(link);
-    alert("Lien copié dans le presse-papiers !");
-  }catch{
-    prompt("Copie le lien :", link);
-  }
-});
+.foot{ margin: 12px 2px 0; font-size: 12px; }
 
-$("#weatherForm").addEventListener("submit", (e) => {
-  e.preventDefault();
+.skeleton{
+  margin-top: 14px;
+}
+.skLine{
+  height: 14px;
+  width: 55%;
+  border-radius: 999px;
+  background: rgba(255,255,255,.10);
+  border: 1px solid var(--stroke);
+  overflow:hidden;
+  position:relative;
+}
+.skGrid{
+  margin-top: 12px;
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.skCard{
+  height: 96px;
+  border-radius: var(--radius);
+  background: rgba(255,255,255,.07);
+  border: 1px solid var(--stroke);
+  position:relative;
+  overflow:hidden;
+}
+.skLine::after, .skCard::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+  transform: translateX(-60%);
+  animation: shimmer 1.1s ease-in-out infinite;
+}
+@keyframes shimmer{
+  0%{ transform: translateX(-60%); }
+  100%{ transform: translateX(120%); }
+}
 
-  const city = $("#city").value.trim();
-  const birthISO = $("#birth").value;
-  const year = parseInt($("#year").value, 10);
+.footer{
+  padding: 28px 22px;
+  text-align:center;
+  border-top: 1px solid var(--stroke);
+  background: rgba(255,255,255,.03);
+}
 
-  if (!city || !birthISO || !Number.isFinite(year)){
-    alert("Merci de compléter tous les champs.");
-    return;
-  }
-
-  const birth = new Date(birthISO);
-  const month = birth.getMonth();
-  const day = birth.getDate();
-
-  let leapNote = "";
-  let targetDay = day;
-
-  // Handle Feb 29 in non-leap years
-  if (month === 1 && day === 29 && !isLeapYear(year)){
-    leapNote = `⚠️ ${year} n’est pas bissextile : 29 février ajusté au 28 février.`;
-    targetDay = 28;
-  }
-
-  const w = generateWeather({ city, month, day: targetDay, year });
-
-  // Update URL for shareable state
-  setQueryFromForm(city, birthISO, year);
-
-  showResults(w, leapNote);
-});
-
-// Load from query if present
-(function initFromQuery(){
-  const q = getQuery();
-  if (q.city) $("#city").value = q.city;
-  if (q.birth) $("#birth").value = q.birth;
-  if (q.year) $("#year").value = q.year;
-
-  if (q.city && q.birth && q.year){
-    // auto-generate
-    $("#weatherForm").dispatchEvent(new Event("submit", { cancelable: true }));
-  }else{
-    // defaults for nicer first view
-    // set birth to today-ish (safe for date input)
-    const d = new Date();
-    const iso = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-    $("#birth").value = iso;
-    $("#year").value = 2000;
-  }
-})();
+/* Responsive */
+@media (max-width: 980px){
+  .hero{ grid-template-columns: 1fr; }
+  .row{ grid-template-columns: 1fr; }
+  .grid{ grid-template-columns: 1fr; }
+  .card.big{ grid-row:auto; }
+  .card.wide{ grid-column:auto; }
+  .skGrid{ grid-template-columns: 1fr 1fr; }
+}
